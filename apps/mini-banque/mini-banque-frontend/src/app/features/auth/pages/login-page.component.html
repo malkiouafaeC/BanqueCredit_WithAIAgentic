@@ -1,0 +1,43 @@
+<main class="login-shell">
+  <section class="login-card" aria-labelledby="login-title">
+    <header class="login-header">
+      <p class="eyebrow">Mini Banque</p>
+      <h1 id="login-title">Connexion conseiller</h1>
+      <p class="subtitle">Accedez a votre espace pour gerer les clients.</p>
+    </header>
+
+    <form [formGroup]="loginForm" (ngSubmit)="submit()" class="login-form" novalidate>
+      <label class="field">
+        <span>Nom utilisateur</span>
+        <input
+          type="text"
+          formControlName="username"
+          autocomplete="username"
+          [attr.aria-invalid]="usernameControl.invalid && usernameControl.touched"
+        />
+      </label>
+      <p class="field-error" *ngIf="usernameControl.invalid && usernameControl.touched">
+        Le nom utilisateur est obligatoire.
+      </p>
+
+      <label class="field">
+        <span>Mot de passe</span>
+        <input
+          type="password"
+          formControlName="password"
+          autocomplete="current-password"
+          [attr.aria-invalid]="passwordControl.invalid && passwordControl.touched"
+        />
+      </label>
+      <p class="field-error" *ngIf="passwordControl.invalid && passwordControl.touched">
+        Le mot de passe est obligatoire (min. 4 caracteres).
+      </p>
+
+      <p class="auth-error" *ngIf="authErrorMessage()" role="alert">{{ authErrorMessage() }}</p>
+
+      <button type="submit" [disabled]="isSubmitting()">
+        {{ isSubmitting() ? 'Connexion en cours...' : 'Se connecter' }}
+      </button>
+    </form>
+  </section>
+</main>

@@ -1,0 +1,9 @@
+.token-savior-cache.json
+
+node_modules/
+dist/
+target/
+coverage/
+
+.vscode/
+.idea/
