@@ -1,0 +1,44 @@
+<h1>Demandes de crédit</h1>
+
+@if (authService.hasRole(Role.CONSEILLER)) {
+  <p><a routerLink="/demandes/nouvelle" class="btn btn-primary">+ Nouvelle demande</a></p>
+}
+
+@switch (state()) {
+  @case ('loading') {
+    <p class="state-message state-message--loading" role="status">Chargement des demandes…</p>
+  }
+  @case ('error') {
+    <p class="state-message state-message--error" role="alert">
+      Impossible de charger les demandes.
+      <button type="button" class="btn btn-secondary" (click)="load()">Réessayer</button>
+    </p>
+  }
+  @case ('loaded') {
+    @if (demandes().length === 0) {
+      <p class="state-message state-message--empty">Aucune demande de crédit enregistrée.</p>
+    } @else {
+      <table>
+        <thead>
+          <tr>
+            <th>Montant</th>
+            <th>Durée</th>
+            <th>Statut</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (demande of demandes(); track demande.id) {
+            <tr>
+              <td>{{ demande.montantDemande }}</td>
+              <td>{{ demande.dureeMois }} mois</td>
+              <td><app-badge-statut [statut]="demande.statut" /></td>
+              <td><a [routerLink]="['/demandes', demande.id]">Voir détail</a></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  }
+}
+

@@ -1,0 +1,75 @@
+@switch (state()) {
+  @case ('loading') {
+    <p class="state-message state-message--loading" role="status">Chargement de la demande…</p>
+  }
+  @case ('error') {
+    <p class="state-message state-message--error" role="alert">
+      Demande introuvable ou erreur technique.
+      <button type="button" class="btn btn-secondary" (click)="load()">Réessayer</button>
+    </p>
+  }
+  @case ('loaded') {
+    @if (demande(); as d) {
+      <h1>Demande #{{ d.id }}</h1>
+      <p>
+        Client : <a [routerLink]="['/clients', d.clientId]">{{ d.clientNom }}</a> ·
+        <app-badge-statut [statut]="d.statut" />
+      </p>
+      <dl>
+        <dt>Montant demandé</dt>
+        <dd>{{ d.montantDemande }}</dd>
+        <dt>Durée</dt>
+        <dd>{{ d.dureeMois }} mois</dd>
+        <dt>Taux fictif</dt>
+        <dd>{{ d.tauxFictif }} %</dd>
+        @if (d.commentaireDecision) {
+          <dt>Commentaire de décision</dt>
+          <dd>{{ d.commentaireDecision }}</dd>
+        }
+      </dl>
+
+      <section>
+        <h2>Simulation</h2>
+        <button type="button" class="btn btn-secondary" (click)="simuler()" [disabled]="simulating()">
+          {{ simulating() ? 'Simulation en cours…' : 'Lancer la simulation' }}
+        </button>
+        @if (simulation(); as s) {
+          <dl>
+            <dt>Mensualité estimée</dt>
+            <dd>{{ s.mensualiteEstimee }}</dd>
+            <dt>Taux d'endettement</dt>
+            <dd>{{ s.tauxEndettement }} %</dd>
+          </dl>
+          <app-badge-score [score]="s.scoreSimplifie" />
+        }
+      </section>
+
+      <section>
+        <h2>Actions</h2>
+        @if (actionError()) {
+          <p class="state-message state-message--error" role="alert">{{ actionError() }}</p>
+        }
+        <div class="actions-bar">
+          @if (actions.canSoumettre(d, authService.currentRole())) {
+            <button type="button" class="btn btn-primary" (click)="soumettre()" [disabled]="actionPending()">
+              Soumettre
+            </button>
+          }
+          @if (actions.canAnnuler(d, authService.currentRole())) {
+            <button type="button" class="btn btn-danger" (click)="annuler()" [disabled]="actionPending()">
+              Annuler
+            </button>
+          }
+          @if (authService.hasRole(Role.RESPONSABLE_CREDIT)) {
+            <a class="btn btn-secondary" [routerLink]="['/demandes', d.id, 'decision']">Instruire le dossier</a>
+          }
+        </div>
+      </section>
+
+      <section>
+        <app-historique-list [demandeId]="d.id" />
+      </section>
+    }
+  }
+}
+

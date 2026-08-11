@@ -1,0 +1,59 @@
+@switch (state()) {
+  @case ('loading') {
+    <p class="state-message state-message--loading" role="status">Chargement du dossier…</p>
+  }
+  @case ('error') {
+    <p class="state-message state-message--error" role="alert">Dossier introuvable ou erreur technique.</p>
+  }
+  @case ('loaded') {
+    @if (demande(); as d) {
+      <h1>Instruction — Demande #{{ d.id }}</h1>
+      <p>
+        Client : <a [routerLink]="['/clients', d.clientId]">{{ d.clientNom }}</a> ·
+        <app-badge-statut [statut]="d.statut" />
+      </p>
+      <dl>
+        <dt>Montant demandé</dt>
+        <dd>{{ d.montantDemande }}</dd>
+        <dt>Taux d'endettement (recalculé)</dt>
+        <dd>{{ d.tauxEndettement }} %</dd>
+      </dl>
+
+      @if (actionError()) {
+        <p class="state-message state-message--error" role="alert">{{ actionError() }}</p>
+      }
+
+      <div class="actions-bar">
+        @if (actions.canAnalyser(d, authService.currentRole())) {
+          <button type="button" class="btn btn-primary" (click)="analyser()" [disabled]="actionPending()">
+            Passer en analyse
+          </button>
+        }
+        @if (actions.canAccepter(d, authService.currentRole())) {
+          <button type="button" class="btn btn-success" (click)="accepter()" [disabled]="actionPending()">
+            Accepter
+          </button>
+        }
+        @if (actions.canRefuser(d, authService.currentRole())) {
+          <button type="button" class="btn btn-danger" (click)="toggleRefusForm()" [disabled]="actionPending()">
+            Refuser
+          </button>
+        }
+      </div>
+
+      @if (showRefusForm()) {
+        <form [formGroup]="refusForm" (ngSubmit)="refuser()" novalidate>
+          <div class="form-field">
+            <label for="commentaire">Commentaire de refus (obligatoire)</label>
+            <textarea id="commentaire" formControlName="commentaire" rows="3"></textarea>
+            @if (refusForm.get('commentaire')!.invalid && refusForm.get('commentaire')!.touched) {
+              <span class="field-error">Un commentaire est obligatoire pour refuser une demande</span>
+            }
+          </div>
+          <button type="submit" class="btn btn-danger" [disabled]="actionPending()">Confirmer le refus</button>
+        </form>
+      }
+    }
+  }
+}
+

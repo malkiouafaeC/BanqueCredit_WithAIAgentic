@@ -1,0 +1,57 @@
+@switch (state()) {
+  @case ('loading') {
+    <p class="state-message state-message--loading" role="status">Chargement du client…</p>
+  }
+  @case ('error') {
+    <p class="state-message state-message--error" role="alert">
+      Client introuvable ou erreur technique.
+      <button type="button" class="btn btn-secondary" (click)="load()">Réessayer</button>
+    </p>
+  }
+  @case ('loaded') {
+    @if (client(); as c) {
+      <h1>{{ c.nom }}</h1>
+      <dl>
+        <dt>Email</dt>
+        <dd>{{ c.email || 'Non renseigné' }}</dd>
+        <dt>Revenu mensuel</dt>
+        <dd>{{ c.revenuMensuel }}</dd>
+        <dt>Charges mensuelles</dt>
+        <dd>{{ c.chargesMensuelles }}</dd>
+        <dt>Situation professionnelle</dt>
+        <dd>{{ c.situationProfessionnelle || 'Non renseignée' }}</dd>
+        <dt>Créé le</dt>
+        <dd>{{ c.createdAt | date: 'short' }}</dd>
+      </dl>
+
+      <h2>Demandes de crédit</h2>
+      <p><a [routerLink]="['/demandes/nouvelle']" [queryParams]="{ clientId: c.id }" class="btn btn-primary">+ Nouvelle demande</a></p>
+
+      @if (c.demandes.length === 0) {
+        <p class="state-message state-message--empty">Ce client n'a aucune demande de crédit.</p>
+      } @else {
+        <table>
+          <thead>
+            <tr>
+              <th>Montant</th>
+              <th>Durée</th>
+              <th>Statut</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (demande of c.demandes; track demande.id) {
+              <tr>
+                <td>{{ demande.montantDemande }}</td>
+                <td>{{ demande.dureeMois }} mois</td>
+                <td><app-badge-statut [statut]="demande.statut" /></td>
+                <td><a [routerLink]="['/demandes', demande.id]">Voir détail</a></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    }
+  }
+}
+
