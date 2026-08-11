@@ -1,0 +1,86 @@
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: auto;
+  &:focus {
+    left: 0.5rem;
+    top: 0.5rem;
+    z-index: 100;
+    background: #fff;
+    padding: 0.5rem 1rem;
+    border: 2px solid #0b4a9c;
+  }
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 0.75rem 1.5rem;
+  background: #0b4a9c; // institutional blue
+  color: #fff;
+
+  &__brand {
+    font-weight: 700;
+    font-size: 1.125rem;
+  }
+
+  &__nav {
+    display: flex;
+    gap: 1rem;
+    flex: 1;
+
+    a {
+      color: #fff;
+      text-decoration: none;
+      padding: 0.25rem 0.25rem;
+      border-bottom: 2px solid transparent;
+
+      &:hover,
+      &:focus-visible {
+        border-color: #fff;
+      }
+
+      &.active {
+        border-color: #fff;
+        font-weight: 600;
+      }
+    }
+  }
+
+  &__user {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.875rem;
+  }
+
+  &__logout {
+    background: #fff;
+    color: #0b4a9c;
+    border: none;
+    border-radius: 4px;
+    padding: 0.35rem 0.75rem;
+    cursor: pointer;
+    font-weight: 600;
+
+    &:focus-visible {
+      outline: 3px solid #ffd54a;
+      outline-offset: 2px;
+    }
+  }
+}
+
+.app-content {
+  padding: 1.5rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+:host ::ng-deep a:focus-visible,
+:host ::ng-deep button:focus-visible {
+  outline: 3px solid #ffd54a;
+  outline-offset: 2px;
+}
+

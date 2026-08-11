@@ -1,0 +1,67 @@
+<h1>Nouvelle demande de crédit</h1>
+
+<form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+  <div class="form-field">
+    <label for="clientId">Client</label>
+    <select id="clientId" formControlName="clientId">
+      <option [ngValue]="null">— Sélectionner un client —</option>
+      @for (client of clients(); track client.id) {
+        <option [ngValue]="client.id">{{ client.nom }}</option>
+      }
+    </select>
+    @if (form.get('clientId')!.invalid && form.get('clientId')!.touched) {
+      <span class="field-error">Le client est obligatoire</span>
+    }
+    @if (serverErrors()['clientId']) {
+      <span class="field-error">{{ serverErrors()['clientId'] }}</span>
+    }
+  </div>
+
+  <div class="form-field">
+    <label for="montantDemande">Montant demandé</label>
+    <input id="montantDemande" type="number" formControlName="montantDemande" />
+    @if (form.get('montantDemande')!.hasError('required') && form.get('montantDemande')!.touched) {
+      <span class="field-error">Le montant demandé est obligatoire</span>
+    }
+    @if (form.get('montantDemande')!.hasError('montantMin')) {
+      <span class="field-error">Le montant doit être strictement supérieur à 1000</span>
+    }
+    @if (form.get('montantDemande')!.hasError('max')) {
+      <span class="field-error">Le montant doit être inférieur ou égal à 100000</span>
+    }
+    @if (serverErrors()['montantDemande']) {
+      <span class="field-error">{{ serverErrors()['montantDemande'] }}</span>
+    }
+  </div>
+
+  <div class="form-field">
+    <label for="dureeMois">Durée (mois)</label>
+    <input id="dureeMois" type="number" formControlName="dureeMois" />
+    @if (form.get('dureeMois')!.invalid && form.get('dureeMois')!.touched) {
+      <span class="field-error">La durée doit être comprise entre 12 et 84 mois</span>
+    }
+    @if (serverErrors()['dureeMois']) {
+      <span class="field-error">{{ serverErrors()['dureeMois'] }}</span>
+    }
+  </div>
+
+  <div class="form-field">
+    <label for="tauxFictif">Taux fictif (%)</label>
+    <input id="tauxFictif" type="number" formControlName="tauxFictif" step="0.01" />
+    @if (form.get('tauxFictif')!.invalid && form.get('tauxFictif')!.touched) {
+      <span class="field-error">Le taux fictif est obligatoire</span>
+    }
+    @if (serverErrors()['tauxFictif']) {
+      <span class="field-error">{{ serverErrors()['tauxFictif'] }}</span>
+    }
+  </div>
+
+  @if (generalError()) {
+    <p class="state-message state-message--error" role="alert">{{ generalError() }}</p>
+  }
+
+  <button type="submit" class="btn btn-primary" [disabled]="submitting()">
+    {{ submitting() ? 'Création…' : 'Créer la demande' }}
+  </button>
+</form>
+

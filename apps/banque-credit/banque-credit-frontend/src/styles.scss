@@ -1,0 +1,198 @@
+/* Global styles — Banque Crédit (charte graphique §5.8) */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background: #f5f7fa;
+  color: #1c2733;
+  line-height: 1.5;
+}
+
+a {
+  color: #0b4a9c;
+}
+
+button {
+  font-family: inherit;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 1rem;
+
+  label {
+    font-weight: 600;
+  }
+
+  input,
+  select,
+  textarea {
+    padding: 0.5rem;
+    border: 1px solid #c7d0da;
+    border-radius: 4px;
+    font-size: 1rem;
+  }
+
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    outline: 3px solid #0b4a9c;
+    outline-offset: 1px;
+  }
+}
+
+.field-error {
+  color: #9c1b1b;
+  font-size: 0.8125rem;
+}
+
+.state-message {
+  padding: 1rem;
+  border-radius: 6px;
+  margin: 1rem 0;
+}
+
+.state-message--loading {
+  background: #e3edfb;
+  color: #0b4a9c;
+}
+
+.state-message--empty {
+  background: #eef1f5;
+  color: #33414f;
+}
+
+.state-message--error {
+  background: #fbe6e6;
+  color: #9c1b1b;
+}
+
+.btn {
+  border: none;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 3px solid #ffd54a;
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.btn-primary {
+  background: #0b4a9c;
+  color: #fff;
+}
+
+.btn-success {
+  background: #0f6d31;
+  color: #fff;
+}
+
+.btn-danger {
+  background: #9c1b1b;
+  color: #fff;
+}
+
+.btn-secondary {
+  background: #eef1f5;
+  color: #1c2733;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th,
+  td {
+    text-align: left;
+    padding: 0.5rem;
+    border-bottom: 1px solid #dde3ea;
+  }
+}
+
+.actions-bar {
+  display: flex;
+  gap: 0.75rem;
+  margin: 1rem 0;
+  flex-wrap: wrap;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.dashboard-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid transparent;
+
+  &.charte-info {
+    background: #e3edfb;
+    color: #0b4a9c;
+    border-color: #a9c8ef;
+  }
+  &.charte-warning {
+    background: #fff1df;
+    color: #8a4b00;
+    border-color: #f3c98a;
+  }
+  &.charte-success {
+    background: #e2f6ea;
+    color: #0f6d31;
+    border-color: #9fdcb7;
+  }
+  &.charte-danger {
+    background: #fbe6e6;
+    color: #9c1b1b;
+    border-color: #f0aeae;
+  }
+
+  &__value {
+    font-size: 2rem;
+    font-weight: 700;
+  }
+
+  &__label {
+    font-size: 0.875rem;
+  }
+}
+
+.historique-list {
+  list-style: none;
+  padding: 0;
+
+  li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #dde3ea;
+  }
+
+  &__meta {
+    display: block;
+    font-size: 0.8125rem;
+    color: #647383;
+  }
+
+  &__comment {
+    margin: 0.25rem 0 0;
+    font-style: italic;
+  }
+}
+

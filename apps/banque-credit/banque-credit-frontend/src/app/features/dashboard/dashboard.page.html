@@ -1,0 +1,42 @@
+<h1>Tableau de bord agence</h1>
+
+@switch (state()) {
+  @case ('loading') {
+    <p class="state-message state-message--loading" role="status">Chargement du tableau de bord…</p>
+  }
+  @case ('error') {
+    <p class="state-message state-message--error" role="alert">
+      Impossible de charger le tableau de bord.
+      <button type="button" class="btn btn-secondary" (click)="load()">Réessayer</button>
+    </p>
+  }
+  @case ('loaded') {
+    @if (dashboard(); as d) {
+      <div class="dashboard-grid">
+        <div class="dashboard-card charte-info">
+          <span class="dashboard-card__value">{{ d.nbSoumises }}</span>
+          <span class="dashboard-card__label">Soumises</span>
+        </div>
+        <div class="dashboard-card charte-warning">
+          <span class="dashboard-card__value">{{ d.nbEnAnalyse }}</span>
+          <span class="dashboard-card__label">En analyse</span>
+        </div>
+        <div class="dashboard-card charte-success">
+          <span class="dashboard-card__value">{{ d.nbAcceptees }}</span>
+          <span class="dashboard-card__label">Acceptées</span>
+        </div>
+        <div class="dashboard-card charte-danger">
+          <span class="dashboard-card__value">{{ d.nbRefusees }}</span>
+          <span class="dashboard-card__label">Refusées</span>
+        </div>
+      </div>
+      <dl>
+        <dt>Montant total demandé</dt>
+        <dd>{{ d.montantTotalDemande }}</dd>
+        <dt>Taux moyen d'endettement</dt>
+        <dd>{{ d.tauxMoyenEndettement }} %</dd>
+      </dl>
+    }
+  }
+}
+
