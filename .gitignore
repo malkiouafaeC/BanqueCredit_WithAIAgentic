@@ -1,0 +1,40 @@
+# Root .gitignore for BanqueCredit_WithAIAgentic (mini-banque + banque-credit apps)
+
+# Java / Maven build output
+target/
+*.class
+*.jar
+*.war
+!.mvn/wrapper/maven-wrapper.jar
+
+# Node / Angular
+node_modules/
+dist/
+.angular/
+npm-debug.log*
+yarn-error.log*
+
+# H2 local database files
+data/
+*.mv.db
+*.trace.db
+
+# IDEs and editors
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.project
+.classpath
+.settings/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+

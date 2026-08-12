@@ -1,0 +1,33 @@
+<h2>Historique des transitions</h2>
+
+@switch (state()) {
+  @case ('loading') {
+    <p class="state-message state-message--loading" role="status">Chargement de l'historique…</p>
+  }
+  @case ('error') {
+    <p class="state-message state-message--error" role="alert">Impossible de charger l'historique.</p>
+  }
+  @case ('loaded') {
+    @if (entries().length === 0) {
+      <p class="state-message state-message--empty">Aucune transition enregistrée pour cette demande.</p>
+    } @else {
+      <ul class="historique-list">
+        @for (entry of entries(); track entry.id) {
+          <li>
+            <span>
+              @if (entry.ancienStatut) {
+                <app-badge-statut [statut]="entry.ancienStatut" /> →
+              }
+              <app-badge-statut [statut]="entry.nouveauStatut" />
+            </span>
+            <span class="historique-list__meta">{{ entry.auteur }} · {{ entry.date | date: 'short' }}</span>
+            @if (entry.commentaire) {
+              <p class="historique-list__comment">« {{ entry.commentaire }} »</p>
+            }
+          </li>
+        }
+      </ul>
+    }
+  }
+}
+

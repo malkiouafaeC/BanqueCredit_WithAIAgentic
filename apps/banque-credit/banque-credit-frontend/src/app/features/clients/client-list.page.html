@@ -1,0 +1,42 @@
+<h1>Clients</h1>
+
+@if (authService.hasRole(Role.CONSEILLER)) {
+  <p><a routerLink="/clients/nouveau" class="btn btn-primary">+ Nouveau client</a></p>
+}
+
+@switch (state()) {
+  @case ('loading') {
+    <p class="state-message state-message--loading" role="status">Chargement des clients…</p>
+  }
+  @case ('error') {
+    <p class="state-message state-message--error" role="alert">
+      Impossible de charger la liste des clients.
+      <button type="button" class="btn btn-secondary" (click)="load()">Réessayer</button>
+    </p>
+  }
+  @case ('loaded') {
+    @if (clients().length === 0) {
+      <p class="state-message state-message--empty">Aucun client enregistré pour le moment.</p>
+    } @else {
+      <table>
+        <thead>
+          <tr>
+            <th>Nom</th>
+            <th>Revenu mensuel</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (client of clients(); track client.id) {
+            <tr>
+              <td>{{ client.nom }}</td>
+              <td>{{ client.revenuMensuel }}</td>
+              <td><a [routerLink]="['/clients', client.id]">Voir détail</a></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  }
+}
+

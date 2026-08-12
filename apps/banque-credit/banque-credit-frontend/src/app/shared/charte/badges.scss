@@ -1,0 +1,54 @@
+// Charte graphique — mapping couleur centralisé (spec §5.8).
+// Contrast-checked against WCAG AA for normal text on white background.
+:host {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.charte-badge {
+  display: inline-block;
+  font-weight: 600;
+  font-size: 0.8125rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  line-height: 1.4;
+}
+
+.charte-neutral {
+  background: #eef1f5;
+  color: #33414f;
+  border-color: #c7d0da;
+}
+
+.charte-info {
+  background: #e3edfb;
+  color: #0b4a9c; // institutional blue
+  border-color: #a9c8ef;
+}
+
+.charte-success {
+  background: #e2f6ea;
+  color: #0f6d31; // green = accepted / excellent-bon
+  border-color: #9fdcb7;
+}
+
+.charte-danger {
+  background: #fbe6e6;
+  color: #9c1b1b; // red = refused
+  border-color: #f0aeae;
+}
+
+.charte-warning {
+  background: #fff1df;
+  color: #8a4b00; // orange = analysis / moyen-faible warning
+  border-color: #f3c98a;
+}
+
+.charte-warning-text {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: #8a4b00;
+}
+

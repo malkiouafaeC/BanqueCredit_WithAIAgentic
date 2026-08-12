@@ -1,0 +1,58 @@
+<h1>Nouveau client</h1>
+
+<form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+  <div class="form-field">
+    <label for="nom">Nom</label>
+    <input id="nom" type="text" formControlName="nom" />
+    @if (form.get('nom')!.invalid && form.get('nom')!.touched) {
+      <span class="field-error">Le nom est obligatoire</span>
+    }
+    @if (serverErrors()['nom']) {
+      <span class="field-error">{{ serverErrors()['nom'] }}</span>
+    }
+  </div>
+
+  <div class="form-field">
+    <label for="email">Email (optionnel)</label>
+    <input id="email" type="email" formControlName="email" />
+    @if (form.get('email')!.invalid && form.get('email')!.touched) {
+      <span class="field-error">Le format de l'email est invalide</span>
+    }
+  </div>
+
+  <div class="form-field">
+    <label for="revenuMensuel">Revenu mensuel</label>
+    <input id="revenuMensuel" type="number" formControlName="revenuMensuel" />
+    @if (form.get('revenuMensuel')!.invalid && form.get('revenuMensuel')!.touched) {
+      <span class="field-error">Le revenu mensuel est obligatoire</span>
+    }
+    @if (serverErrors()['revenuMensuel']) {
+      <span class="field-error">{{ serverErrors()['revenuMensuel'] }}</span>
+    }
+  </div>
+
+  <div class="form-field">
+    <label for="chargesMensuelles">Charges mensuelles</label>
+    <input id="chargesMensuelles" type="number" formControlName="chargesMensuelles" />
+    @if (form.get('chargesMensuelles')!.invalid && form.get('chargesMensuelles')!.touched) {
+      <span class="field-error">Les charges mensuelles sont obligatoires</span>
+    }
+    @if (serverErrors()['chargesMensuelles']) {
+      <span class="field-error">{{ serverErrors()['chargesMensuelles'] }}</span>
+    }
+  </div>
+
+  <div class="form-field">
+    <label for="situationProfessionnelle">Situation professionnelle (optionnel)</label>
+    <input id="situationProfessionnelle" type="text" formControlName="situationProfessionnelle" />
+  </div>
+
+  @if (generalError()) {
+    <p class="state-message state-message--error" role="alert">{{ generalError() }}</p>
+  }
+
+  <button type="submit" class="btn btn-primary" [disabled]="submitting()">
+    {{ submitting() ? 'Création…' : 'Créer le client' }}
+  </button>
+</form>
+

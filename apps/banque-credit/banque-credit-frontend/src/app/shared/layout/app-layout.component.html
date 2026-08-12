@@ -1,0 +1,23 @@
+<a class="skip-link" href="#main-content">Aller au contenu principal</a>
+<header class="app-header">
+  <div class="app-header__brand">Banque Crédit</div>
+  <nav class="app-header__nav" aria-label="Navigation principale">
+    <a routerLink="/dashboard" routerLinkActive="active">Tableau de bord</a>
+    @if (authService.hasRole(Role.CONSEILLER)) {
+      <a routerLink="/clients" routerLinkActive="active">Clients</a>
+    }
+    <a routerLink="/demandes" routerLinkActive="active">Demandes</a>
+  </nav>
+  <div class="app-header__user">
+    @if (authService.currentUsername()) {
+      <span class="app-header__identity">
+        {{ authService.currentUsername() }} · <strong>{{ authService.currentRole() }}</strong>
+      </span>
+    }
+    <button type="button" class="app-header__logout" (click)="logout()">Se déconnecter</button>
+  </div>
+</header>
+<main id="main-content" class="app-content" tabindex="-1">
+  <router-outlet />
+</main>
+
