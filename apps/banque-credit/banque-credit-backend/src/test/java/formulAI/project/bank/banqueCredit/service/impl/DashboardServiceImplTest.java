@@ -14,7 +14,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
+import formulAI.project.bank.banqueCredit.dto.SimulationResultDto;
 import java.math.BigDecimal;
 import java.util.List;
 

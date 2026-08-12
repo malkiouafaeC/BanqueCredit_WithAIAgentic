@@ -3,6 +3,7 @@ package formulAI.project.bank.banqueCredit.service.impl;
 import formulAI.project.bank.banqueCredit.model.ScoreSimplifie;
 import formulAI.project.bank.banqueCredit.service.SimulationService;
 import org.springframework.stereotype.Service;
+import formulAI.project.bank.banqueCredit.dto.SimulationResultDto;
 
 import java.math.BigDecimal;
 import java.math.MathContext;

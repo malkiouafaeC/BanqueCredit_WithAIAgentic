@@ -15,6 +15,7 @@ import formulAI.project.bank.banqueCredit.service.SimulationService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import formulAI.project.bank.banqueCredit.dto.SimulationResultDto;
 
 import java.time.Instant;
 

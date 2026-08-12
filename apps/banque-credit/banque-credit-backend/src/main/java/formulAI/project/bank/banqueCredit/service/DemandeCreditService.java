@@ -4,6 +4,7 @@ import formulAI.project.bank.banqueCredit.dto.DemandeCreditCreateDto;
 import formulAI.project.bank.banqueCredit.dto.DemandeCreditDto;
 import formulAI.project.bank.banqueCredit.dto.DemandeCreditSummaryDto;
 import formulAI.project.bank.banqueCredit.model.Statut;
+import formulAI.project.bank.banqueCredit.dto.SimulationResultDto;
 
 import java.util.List;
 

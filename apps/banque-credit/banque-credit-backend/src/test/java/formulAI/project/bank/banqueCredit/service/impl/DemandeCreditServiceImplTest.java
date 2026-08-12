@@ -10,6 +10,8 @@ import formulAI.project.bank.banqueCredit.repository.DemandeCreditRepository;
 import formulAI.project.bank.banqueCredit.repository.HistoriqueDecisionRepository;
 import formulAI.project.bank.banqueCredit.repository.UserRepository;
 import formulAI.project.bank.banqueCredit.service.SimulationService;
+import formulAI.project.bank.banqueCredit.dto.SimulationResultDto;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -1,7 +1,7 @@
 package formulAI.project.bank.banqueCredit.service;
 
 import formulAI.project.bank.banqueCredit.model.ScoreSimplifie;
-
+import formulAI.project.bank.banqueCredit.dto.SimulationResultDto;
 import java.math.BigDecimal;
 
 /**
