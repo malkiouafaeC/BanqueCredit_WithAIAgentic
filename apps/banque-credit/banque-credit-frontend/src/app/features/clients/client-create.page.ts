@@ -4,7 +4,13 @@ import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ClientService } from './client.service';
 import { ApiErrorResponse } from '../../core/models/api-error.model';
+import { AbstractControl, ValidationErrors } from '@angular/forms';
 
+export function notBlankValidator(control: AbstractControl): ValidationErrors | null
+ {const value = control.value;
+  if (value && value.trim().length === 0) 
+    {return { notBlank: true };}return null;
+}
 /** Client creation form (US-003, US-004) — one explicit error message per missing field. */
 @Component({
   selector: 'app-client-create-page',
@@ -19,7 +25,7 @@ export class ClientCreatePage {
   private readonly router = inject(Router);
 
   readonly form = this.fb.group({
-    nom: ['', [Validators.required]],
+    nom: ['', [Validators.required, notBlankValidator]],
     email: ['', [Validators.email]],
     revenuMensuel: [null as number | null, [Validators.required, Validators.min(0.01)]],
     chargesMensuelles: [null as number | null, [Validators.required, Validators.min(0)]],

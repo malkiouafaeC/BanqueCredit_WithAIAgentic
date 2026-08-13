@@ -4,6 +4,7 @@ import formulAI.project.bank.banqueCredit.dto.DemandeCreditDto;
 import formulAI.project.bank.banqueCredit.exception.CommentaireObligatoireException;
 import formulAI.project.bank.banqueCredit.exception.EligibiliteNonRespecteeException;
 import formulAI.project.bank.banqueCredit.exception.RessourceNotFoundException;
+import formulAI.project.bank.banqueCredit.exception.RoleNonAutoriseException;
 import formulAI.project.bank.banqueCredit.exception.TransitionInvalideException;
 import formulAI.project.bank.banqueCredit.model.*;
 import formulAI.project.bank.banqueCredit.repository.DemandeCreditRepository;
@@ -56,7 +57,8 @@ class DecisionServiceImplTest {
     private DecisionServiceImpl decisionService;
 
     private Client client;
-    private User auteur;
+    private User conseiller;
+    private User responsable;
 
     @BeforeEach
     void setUp() {
@@ -65,13 +67,13 @@ class DecisionServiceImplTest {
         client.setRevenuMensuel(new BigDecimal("2000"));
         client.setChargesMensuelles(new BigDecimal("300"));
 
-        auteur = new User();
-        auteur.setUsername("responsable1");
-        auteur.setRole(Role.RESPONSABLE_CREDIT);
+        conseiller = new User();
+        conseiller.setUsername("conseiller1");
+        conseiller.setRole(Role.CONSEILLER);
 
-        TestingAuthenticationToken token = new TestingAuthenticationToken("responsable1", null);
-        token.setAuthenticated(true);
-        SecurityContextHolder.getContext().setAuthentication(token);
+        responsable = new User();
+        responsable.setUsername("responsable1");
+        responsable.setRole(Role.RESPONSABLE_CREDIT);
     }
 
     @AfterEach
@@ -90,8 +92,15 @@ class DecisionServiceImplTest {
         return d;
     }
 
-    private void stubUserAndSave() {
-        when(userRepository.findByUsername("responsable1")).thenReturn(Optional.of(auteur));
+    /** Authentifie l'utilisateur donne dans le SecurityContext ET stubbe son lookup par TransitionRules/currentUser(). */
+    private void authenticateAs(User user) {
+        TestingAuthenticationToken token = new TestingAuthenticationToken(user.getUsername(), null);
+        token.setAuthenticated(true);
+        SecurityContextHolder.getContext().setAuthentication(token);
+        when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.of(user));
+    }
+
+    private void stubSave() {
         when(demandeCreditRepository.save(any(DemandeCredit.class))).thenAnswer(inv -> inv.getArgument(0));
     }
 
@@ -101,7 +110,8 @@ class DecisionServiceImplTest {
     void soumettre_shouldTransitionToSoumiseAndCreateHistorique_whenBrouillon() {
         DemandeCredit d = demande(Statut.BROUILLON);
         when(demandeCreditRepository.findById(1L)).thenReturn(Optional.of(d));
-        stubUserAndSave();
+        authenticateAs(conseiller);
+        stubSave();
         stubSimulation();
 
         DemandeCreditDto result = decisionService.soumettre(1L);
@@ -122,12 +132,23 @@ class DecisionServiceImplTest {
         verifyNoInteractions(historiqueDecisionRepository);
     }
 
+    @Test
+    void soumettre_shouldThrowRoleNonAutoriseException_whenRoleIsResponsableCredit() {
+        when(demandeCreditRepository.findById(1L)).thenReturn(Optional.of(demande(Statut.BROUILLON)));
+        authenticateAs(responsable);
+
+        assertThatThrownBy(() -> decisionService.soumettre(1L)).isInstanceOf(RoleNonAutoriseException.class);
+        verify(demandeCreditRepository, never()).save(any());
+        verifyNoInteractions(historiqueDecisionRepository);
+    }
+
     // ---- annuler (RG-BANK-05, E14/E15) ----
 
     @Test
     void annuler_shouldTransitionToAnnulee_whenBrouillon() {
         when(demandeCreditRepository.findById(1L)).thenReturn(Optional.of(demande(Statut.BROUILLON)));
-        stubUserAndSave();
+        authenticateAs(conseiller);
+        stubSave();
         stubSimulation();
 
         DemandeCreditDto result = decisionService.annuler(1L);
@@ -138,7 +159,8 @@ class DecisionServiceImplTest {
     @Test
     void annuler_shouldTransitionToAnnulee_whenSoumise() {
         when(demandeCreditRepository.findById(1L)).thenReturn(Optional.of(demande(Statut.SOUMISE)));
-        stubUserAndSave();
+        authenticateAs(conseiller);
+        stubSave();
         stubSimulation();
 
         DemandeCreditDto result = decisionService.annuler(1L);
@@ -154,12 +176,22 @@ class DecisionServiceImplTest {
         assertThatThrownBy(() -> decisionService.annuler(1L)).isInstanceOf(TransitionInvalideException.class);
     }
 
+    @Test
+    void annuler_shouldThrowRoleNonAutoriseException_whenRoleIsResponsableCredit() {
+        when(demandeCreditRepository.findById(1L)).thenReturn(Optional.of(demande(Statut.BROUILLON)));
+        authenticateAs(responsable);
+
+        assertThatThrownBy(() -> decisionService.annuler(1L)).isInstanceOf(RoleNonAutoriseException.class);
+        verify(demandeCreditRepository, never()).save(any());
+    }
+
     // ---- analyser (RG-BANK-05) ----
 
     @Test
     void analyser_shouldTransitionToEnAnalyse_whenSoumise() {
         when(demandeCreditRepository.findById(1L)).thenReturn(Optional.of(demande(Statut.SOUMISE)));
-        stubUserAndSave();
+        authenticateAs(responsable);
+        stubSave();
         stubSimulation();
 
         DemandeCreditDto result = decisionService.analyser(1L);
@@ -174,12 +206,22 @@ class DecisionServiceImplTest {
         assertThatThrownBy(() -> decisionService.analyser(1L)).isInstanceOf(TransitionInvalideException.class);
     }
 
+    @Test
+    void analyser_shouldThrowRoleNonAutoriseException_whenRoleIsConseiller() {
+        when(demandeCreditRepository.findById(1L)).thenReturn(Optional.of(demande(Statut.SOUMISE)));
+        authenticateAs(conseiller);
+
+        assertThatThrownBy(() -> decisionService.analyser(1L)).isInstanceOf(RoleNonAutoriseException.class);
+        verify(demandeCreditRepository, never()).save(any());
+    }
+
     // ---- accepter (RG-BANK-05, RG-BANK-06) ----
 
     @Test
     void accepter_shouldTransitionToAccepteeAndSnapshotTaux_whenEligible() {
         when(demandeCreditRepository.findById(1L)).thenReturn(Optional.of(demande(Statut.EN_ANALYSE)));
-        stubUserAndSave();
+        authenticateAs(responsable);
+        stubSave();
         stubSimulation();
         doNothing().when(eligibiliteService).verifierEligibilite(any(), any(), any());
 
@@ -201,8 +243,19 @@ class DecisionServiceImplTest {
     }
 
     @Test
+    void accepter_shouldThrowRoleNonAutoriseException_whenRoleIsConseiller() {
+        when(demandeCreditRepository.findById(1L)).thenReturn(Optional.of(demande(Statut.EN_ANALYSE)));
+        authenticateAs(conseiller);
+
+        assertThatThrownBy(() -> decisionService.accepter(1L)).isInstanceOf(RoleNonAutoriseException.class);
+        verifyNoInteractions(eligibiliteService);
+        verify(demandeCreditRepository, never()).save(any());
+    }
+
+    @Test
     void accepter_shouldPropagateEligibiliteNonRespecteeException_whenNotEligible() {
         when(demandeCreditRepository.findById(1L)).thenReturn(Optional.of(demande(Statut.EN_ANALYSE)));
+        authenticateAs(responsable);
         stubSimulation();
         doThrow(new EligibiliteNonRespecteeException("Acceptation impossible : taux d'endettement superieur a 35%"))
                 .when(eligibiliteService).verifierEligibilite(any(), any(), any());
@@ -216,7 +269,8 @@ class DecisionServiceImplTest {
     @Test
     void refuser_shouldTransitionToRefuseeWithCommentaire_whenValidComment() {
         when(demandeCreditRepository.findById(1L)).thenReturn(Optional.of(demande(Statut.EN_ANALYSE)));
-        stubUserAndSave();
+        authenticateAs(responsable);
+        stubSave();
         stubSimulation();
 
         DemandeCreditDto result = decisionService.refuser(1L, "Revenu insuffisant");
@@ -228,6 +282,7 @@ class DecisionServiceImplTest {
     @Test
     void refuser_shouldThrowCommentaireObligatoireException_whenCommentIsNull() {
         when(demandeCreditRepository.findById(1L)).thenReturn(Optional.of(demande(Statut.EN_ANALYSE)));
+        authenticateAs(responsable);
 
         assertThatThrownBy(() -> decisionService.refuser(1L, null)).isInstanceOf(CommentaireObligatoireException.class);
     }
@@ -235,6 +290,7 @@ class DecisionServiceImplTest {
     @Test
     void refuser_shouldThrowCommentaireObligatoireException_whenCommentIsBlank() {
         when(demandeCreditRepository.findById(1L)).thenReturn(Optional.of(demande(Statut.EN_ANALYSE)));
+        authenticateAs(responsable);
 
         assertThatThrownBy(() -> decisionService.refuser(1L, "   ")).isInstanceOf(CommentaireObligatoireException.class);
     }
@@ -244,6 +300,15 @@ class DecisionServiceImplTest {
         when(demandeCreditRepository.findById(1L)).thenReturn(Optional.of(demande(Statut.SOUMISE)));
 
         assertThatThrownBy(() -> decisionService.refuser(1L, "motif")).isInstanceOf(TransitionInvalideException.class);
+    }
+
+    @Test
+    void refuser_shouldThrowRoleNonAutoriseException_whenRoleIsConseiller() {
+        when(demandeCreditRepository.findById(1L)).thenReturn(Optional.of(demande(Statut.EN_ANALYSE)));
+        authenticateAs(conseiller);
+
+        assertThatThrownBy(() -> decisionService.refuser(1L, "motif")).isInstanceOf(RoleNonAutoriseException.class);
+        verify(demandeCreditRepository, never()).save(any());
     }
 
     @Test

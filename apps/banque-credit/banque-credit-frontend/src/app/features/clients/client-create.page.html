@@ -10,6 +10,9 @@
     @if (serverErrors()['nom']) {
       <span class="field-error">{{ serverErrors()['nom'] }}</span>
     }
+
+    <small *ngIf="form.get('nom')?.hasError('notBlank')">
+      Le nom ne peut pas contenir uniquement des espaces</small>
   </div>
 
   <div class="form-field">

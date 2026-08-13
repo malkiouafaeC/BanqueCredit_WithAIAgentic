@@ -10,7 +10,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * DEC-005 - Traduction centralisee des exceptions metier/techniques vers un corps HTTP standardise.
@@ -72,6 +75,15 @@ public class GlobalExceptionHandler {
 
     private ResponseEntity<ErrorResponseDto> build(HttpStatus status, String code, String message, String champ) {
         return ResponseEntity.status(status).body(new ErrorResponseDto(code, message, champ, Instant.now()));
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Map<String, Object>> handleGenericException(Exception ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+        body.put("message", "Erreur interne du serveur");
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
     }
 }
 

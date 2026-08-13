@@ -1,8 +1,8 @@
 # Spécification fonctionnelle — Feature "banque-credit" (Suivi des demandes de crédit client)
 
-Statut : Approuvé — prêt pour AgentArchitect (arbitrages Q1-Q5/R1-R3 appliqués)
-Version : 1.1
-Auteur : AgentBA (arbitrage AgentOrchestrator)
+Statut : Approuvé — arbitrages Q1-Q5/Q3-bis/R1-R4 appliqués (post-implémentation)
+Version : 1.2
+Auteur : AgentBA (arbitrages AgentOrchestrator)
 
 ---
 
@@ -305,7 +305,10 @@ Le score est recalculé à chaque simulation. Il est informatif : il n'implique 
 - **AC-012-3** : Étant donné une demande au statut `SOUMISE`, quand un Conseiller tente de la passer en analyse, alors l'action est rejetée pour rôle non autorisé.
 
 ### AC pour US-013 (acceptation — RG-BANK-05, RG-BANK-06)
-- **AC-013-1** : Étant donné une demande `EN_ANALYSE` avec tauxEndettement = 35%, revenuMensuel = 1500 et montantDemande = 50000 (3 bornes atteintes exactement), quand le Responsable crédit accepte, alors le statut passe à `ACCEPTEE`, `dateDecision` est renseignée et une entrée HistoriqueDecision est créée.
+- **AC-013-1** (révisée — arbitrage AgentOrchestrator 2026-08-13, voir §9 note Q3-bis) : les 3 conditions d'éligibilité de RG-BANK-06 sont des seuils **indépendants**, chacun vérifié séparément (`≤`), sans exigence de combinaison stricte simultanée des 3 bornes exactes dans un même scénario :
+  - **AC-013-1a** : Étant donné une demande `EN_ANALYSE` avec tauxEndettement = 35% exactement (revenuMensuel et montantDemande très larges, hors de leurs propres bornes), quand le Responsable crédit accepte, alors le statut passe à `ACCEPTEE`, `dateDecision` est renseignée et une entrée HistoriqueDecision est créée.
+  - **AC-013-1b** : Étant donné une demande `EN_ANALYSE` avec revenuMensuel = 1500 exactement (tauxEndettement et montantDemande très larges), quand le Responsable crédit accepte, alors le statut passe à `ACCEPTEE`, `dateDecision` est renseignée et une entrée HistoriqueDecision est créée.
+  - **AC-013-1c** : Étant donné une demande `EN_ANALYSE` avec montantDemande = 50000 exactement (tauxEndettement et revenuMensuel très larges), quand le Responsable crédit accepte, alors le statut passe à `ACCEPTEE`, `dateDecision` est renseignée et une entrée HistoriqueDecision est créée.
 - **AC-013-2** : Étant donné une demande `EN_ANALYSE` avec tauxEndettement = 35.1% (au-delà de la borne), quand le Responsable crédit tente d'accepter, alors l'action est rejetée avec le message "Acceptation impossible : taux d'endettement supérieur à 35%".
 - **AC-013-3** : Étant donné une demande `EN_ANALYSE` avec revenuMensuel = 1499, quand le Responsable crédit tente d'accepter, alors l'action est rejetée avec le message "Acceptation impossible : revenu mensuel inférieur à 1500".
 - **AC-013-4** : Étant donné une demande `EN_ANALYSE` avec montantDemande = 50001 mais tauxEndettement et revenuMensuel conformes, quand le Responsable crédit tente d'accepter, alors l'action est rejetée avec le message "Acceptation impossible : montant supérieur à 50000".
@@ -368,11 +371,13 @@ Statut : arbitré par AgentOrchestrator le 2026-08-11 pour permettre le démarra
 1. **Q1 — situationProfessionnelle** : champ texte libre non obligatoire. *Retenu.*
 2. **Q2 — première entrée d'historique** : une entrée HistoriqueDecision est créée dès la création de la demande, avec `ancienStatut = null`, `nouveauStatut = BROUILLON`. *Retenu.*
 3. **Q3 — acceptation manuelle malgré non-éligibilité** : blocage strict retenu (voir RG-BANK-06) — le système empêche l'acceptation si une des 3 conditions n'est pas remplie ; aucune option de forçage n'est proposée dans cette itération. *Retenu, non bloquant pour la suite.*
+3bis. **Q3-bis — nature des 3 conditions d'éligibilité (RG-BANK-06)** : arbitrage AgentOrchestrator du 2026-08-13, suite à un constat AgentQA/AgentReviewer (AC-013-1 combinant les 3 bornes exactes 35%/1500/50000 simultanément était mathématiquement infaisable sous RG-BANK-02/03/04, la mensualité plancher à montant=50000/durée=84/taux=0 imposant déjà un taux d'endettement d'environ 39,68% avec revenu=1500). Décision : les 3 conditions restent des seuils **indépendants**, chacun vérifié séparément (`≤`), sans exigence de combinaison stricte simultanée des 3 bornes exactes dans un même scénario. AC-013-1 reformulée en AC-013-1a/1b/1c (§7) en conséquence. *Retenu, non bloquant, aucun changement de comportement applicatif requis (le code et les tests existants appliquaient déjà cette interprétation).*
 4. **Q4 — périmètre des agrégats du Dashboard** : exclusion de `BROUILLON` et `ANNULEE` du calcul des agrégats (montant total demandé, taux moyen d'endettement). *Retenu.*
 5. **Q5 — droits de lecture croisés** : séparation stricte des responsabilités par rôle ; un Responsable crédit ne peut pas créer client/demande, un Conseiller ne peut pas décider. *Retenu.*
 
 ### Risques (suivi)
 - **R1** (résolu par Q3 tranchée) : plus de risque de contradiction, RG-BANK-06/AC-013-x restent valables tels quels.
+- **R4** (résolu par Q3-bis) : incohérence de l'ancienne AC-013-1 (triple borne exacte simultanée, mathématiquement infaisable) corrigée par reformulation en AC-013-1a/1b/1c ; plus d'incohérence de spec sur RG-BANK-06.
 - **R2** : RG-BANK-08 (score simplifié par bandes) reste une règle introduite par AgentBA en l'absence de formule officielle ; à surveiller en cas de retour métier ultérieur, mais non bloquant pour l'architecture/l'implémentation.
 - **R3** (résolu) : formule de mensualité estimée normative ajoutée à RG-BANK-04 (amortissement standard, cas particulier taux=0 géré).
 
@@ -386,8 +391,8 @@ Statut : arbitré par AgentOrchestrator le 2026-08-11 pour permettre le démarra
 | RG-BANK-02 | US-007, US-008 | AC-007-1, AC-007-2, AC-008-1, AC-008-2 |
 | RG-BANK-03 | US-007, US-008 | AC-007-2, AC-008-3, AC-008-4 |
 | RG-BANK-04 | US-009 | AC-009-1 |
-| RG-BANK-05 | US-010, US-011, US-012, US-013, US-014 | AC-010-1, AC-010-2, AC-011-1..4, AC-012-1..3, AC-013-1, AC-013-5, AC-015-3 |
-| RG-BANK-06 | US-013 | AC-013-1..4 |
+| RG-BANK-05 | US-010, US-011, US-012, US-013, US-014 | AC-010-1, AC-010-2, AC-011-1..4, AC-012-1..3, AC-013-1a..1c, AC-013-5, AC-015-3 |
+| RG-BANK-06 | US-013 | AC-013-1a..1c, AC-013-2..4 |
 | RG-BANK-07 | US-014, US-015 | AC-014-1, AC-015-1, AC-015-2 |
 | RG-BANK-08 (nouvelle) | US-009 | AC-009-2..6 |
 
