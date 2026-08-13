@@ -220,6 +220,8 @@ Structure : `src/app/features/{domaine}/{models,pages,services}` + `src/app/shar
 
 Note : la lecture de detail client/demande est ouverte aux deux rôles (nécessaire pour que le Responsable crédit instruise un dossier) ; seules les actions d'écriture sont strictement cloisonnées par rôle (Q5 = séparation des **actions**, pas de la lecture nécessaire à l'instruction).
 
+**DEC-010 (arbitrage AgentArchitect, 2026-08-13, suite au constat DEBT-04 d'AgentReviewer)** : l'asymétrie entre la route frontend `/clients` (liste, restreinte à `roleGuard(CONSEILLER)`) et l'endpoint backend `GET /clients` (ouvert aux 2 rôles, cf. §7.2) est **intentionnelle et confirmée**, pas un oubli. `GET /clients` reste accessible aux 2 rôles côté API : le Responsable crédit peut avoir besoin de consulter un client via un autre écran (ex. depuis `/clients/:id` accessible aux 2 rôles, ou depuis le lien client d'une `demande-detail.page`), sans passer par l'écran de liste dédié. Le frontend restreint uniquement l'écran « Liste clients » (`/clients`) au rôle CONSEILLER par **choix UX** (cet écran est pensé comme un outil de prospection/gestion de portefeuille propre au Conseiller), **pas par contrainte de sécurité** : aucune donnée sensible supplémentaire n'est exposée par cette liste par rapport au détail client déjà accessible aux 2 rôles. En conséquence, **aucun `@PreAuthorize` supplémentaire n'est requis côté backend** sur `ClientController.lister()` ; la protection actuelle (authentification requise, sans restriction de rôle) reste l'implémentation cible.
+
 **AC-ARCH-003** : chaque route d'action d'écriture (création client/demande, décision) est protégée par un `roleGuard` dédié — vérifiable par revue du fichier de routes.
 
 ---
@@ -343,7 +345,8 @@ Base path : `/api/v1`. Toutes les routes (sauf `/auth/login`) exigent un JWT val
 ## 9. Open questions
 
 Aucune question bloquante : les arbitrages Q1-Q5 de la spec fonctionnelle sont définitifs et intégralement reflétés dans ce document (DEC-ENT-001, DEC-ENT-005, DEC-004/RG-BANK-06, Q4 en §7.6/AC-ARCH-006, Q5 en §5.3).
-
+Question résolue post-implementation :
+- **DEBT-04 (soulevée par AgentReviewer, cf. review/cross-review-banque-credit.md)** — asymétrie de rôle sur `/clients` (liste) : résolue par DEC-010 (§5.3). Confirmé intentionnel (choix UX du Conseiller sur l'écran de liste), `GET /clients` reste ouvert aux 2 rôles côté API, aucun changement de code requis.
 Notes non bloquantes pour l'implémentation :
 - NOTE-01 : le format exact des messages d'erreur par champ (ex. libellés français des AC-004-x/AC-008-x) doit être repris **littéralement** par AgentBackendDeveloper depuis la spec fonctionnelle §7, pour garantir la conformité aux AC.
 - NOTE-02 : le choix précis de l'algorithme de hachage de mot de passe (BCrypt, coût par défaut Spring Security) est laissé à AgentBackendDeveloper — pas d'exigence de sécurité renforcée dans la spec fonctionnelle (contexte pédagogique).
